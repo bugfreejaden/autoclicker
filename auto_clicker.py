@@ -5,22 +5,29 @@ from pynput.mouse import Button, Controller
 from pynput.keyboard import Listener, KeyCode
 
 running = False
-programme_running = True
+program_running = True
 def Worker():
+    """Worker Function runs in the background waiting till the running conition is true"""
     mouse = pynput.mouse.Controller()
-    while programme_running:
+    while program_running:
         if running:
             mouse.click(Button.left, 1)
             time.sleep(0.1)
         time.sleep(0.01)
 
 def on_press(key):
-    global running, programme_running
-    try:
-        if key.char == "s":
-            running = not running
-    except AttributeError:
-        pass
+    """This fucntion captures the key and does checks to see if the key 
+    matches a condition needed to start the clicking or end the program """
+    global running, program_running
+
+    if hasattr(key, "char") and key.char == "s":
+        print(f"[STATUS] Clicking: {running}")
+        running = not running
+
+    elif key == pynput.keyboard.Key.esc:
+        program_running = False
+        print(f"[STATUS] Exiting program...")
+        return False
 
 threading.Thread(target=Worker).start()
 
@@ -28,4 +35,5 @@ threading.Thread(target=Worker).start()
 
 with Listener(on_press=on_press) as listener:
     listener.join()
+
 
